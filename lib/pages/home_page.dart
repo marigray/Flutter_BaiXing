@@ -5,7 +5,7 @@ import 'package:baixing/config/service.dart';
 import 'dart:async';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:loadmore/loadmore.dart';
 
 
 import 'dart:convert';
@@ -84,17 +84,31 @@ class _MainContextState extends State<MainContext> {
           String leaderImage = data['data']['shopInfo']['leaderImage'];//店长图片
           String leaderPhone = data['data']['shopInfo']['leaderPhone']; // 店长电话
           List<Map> recommendList = (data['data']['recommend'] as List).cast(); // 商品推荐
-         //print(advertePicture);
+          String floor1Title = data['data']['floor1Pic']['PICTURE_ADDRESS'];  // 楼层1的标题图片
+          List<Map> floor1 = (data['data']['floor1'] as List ).cast(); // 楼层1的商品和图片
+          String floor2Title = data['data']['floor2Pic']['PICTURE_ADDRESS'];  
+          List<Map> floor2 = (data['data']['floor2'] as List ).cast(); 
+          String floor3Title = data['data']['floor3Pic']['PICTURE_ADDRESS'];  // 楼层1的标题图片
+          List<Map> floor3 = (data['data']['floor3'] as List ).cast(); 
+          //print(advertePicture);
           // print(swiperDataList);
           // print('aaa:${swiperDataList.length}' );
           //  print(swiperDataList[0]['image']);
           //print(navigatorList[3]['mallCategoryName']);
           return Column(children: <Widget>[
-            SwiperDiy(swiperDataList:swiperDataList ),
-            TopNavigator(navigatorList:navigatorList),
-            BannerAd(advertePicture:advertePicture),
-            LeaderCall(leaderImage:leaderImage,leaderPhone:leaderPhone),
-            Recommend(recommendList:recommendList)
+            SwiperDiy(swiperDataList:swiperDataList ),   //页面顶部滑动组件
+            TopNavigator(navigatorList:navigatorList),   //导航组件
+            BannerAd(advertePicture:advertePicture),     //广告组件
+            LeaderCall(leaderImage:leaderImage,leaderPhone:leaderPhone),  //店长电话组件
+            Recommend(recommendList:recommendList),     //商品推荐
+            FloorTitle(picture_address:floor1Title),   //楼层1的标题
+            FloorContent(floorGoodsList:floor1),             //楼层商品展示组件
+            FloorTitle(picture_address:floor2Title),
+            FloorContent(floorGoodsList:floor2), 
+            FloorTitle(picture_address:floor3Title),
+            FloorContent(floorGoodsList:floor3), 
+            TitleContent(),
+            BelowConten(),
           ],);
         }else{
            return Center(
@@ -220,9 +234,17 @@ class Recommend extends StatelessWidget {
           Container(
             alignment:Alignment.centerLeft,
             padding:EdgeInsets.fromLTRB(10.0, 2.0, 0, 5.0),
-            color:Colors.white,
-            child: Text('商品推荐'),
             
+            decoration:BoxDecoration(
+              color: Colors.white,
+              border:Border(
+                bottom:BorderSide(width:0.5,color: Colors.black12)
+              )
+            ),
+            child: Text(
+              '商品推荐',
+              style: TextStyle(color: Colors.pink),
+            ),
           ),
           Container(
             height:ScreenUtil().setHeight(330) ,
@@ -236,12 +258,23 @@ class Recommend extends StatelessWidget {
                     height: ScreenUtil().setHeight(330) ,
                     width:  ScreenUtil().setHeight(250) ,
                     padding: EdgeInsets.all(8.0),
-                    color: Colors.white,
+                    decoration:BoxDecoration(
+                      color:Colors.white,
+                      border:Border(
+                        left: BorderSide(width:0.5,color:Colors.black12)
+                      )
+                    ),
                     child: Column(
                       children: <Widget>[
                         Image.network(recommendList[index]['image']),
                         Text('￥${recommendList[index]['mallPrice']}'),
-                        Text('￥${recommendList[index]['price']}'),
+                        Text(
+                          '￥${recommendList[index]['price']}',
+                          style: TextStyle(
+                            decoration: TextDecoration.lineThrough,
+                            color:Colors.grey
+                          ),
+                        ),
                       ],
                     ),
                   )
@@ -255,10 +288,167 @@ class Recommend extends StatelessWidget {
       ),
       
     );
-
-    
   }
 }
 
 
 
+//楼层标题栏Widget
+class FloorTitle extends StatelessWidget {
+
+  final String picture_address;  //图片地址
+  FloorTitle({this.picture_address});  
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Image.network(picture_address),
+    );
+  }
+}
+
+//楼层商品组件
+class FloorContent extends StatelessWidget {
+  final List floorGoodsList;
+  FloorContent({this.floorGoodsList});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      
+      child: Column(
+        children: <Widget>[
+          _firstRow(context,floorGoodsList),
+          _otherGoods(context,floorGoodsList)
+        ],
+      ),
+    );
+  }
+
+  Widget _firstRow(BuildContext context,floorGoodsList){
+    return Row(
+      children: <Widget>[
+        InkWell(
+          onTap: (){
+            print('点击了楼层商品');
+          },
+          child:Container(
+            width: ScreenUtil().setWidth(375),
+            child:  Image.network(floorGoodsList[0]['image']),
+          )
+        ),
+        Column(
+          children: <Widget>[
+            InkWell(
+              onTap:(){
+                print('点击了楼层商品');
+              },
+             child:Container(
+                width: ScreenUtil().setWidth(375),
+                child:  Image.network(floorGoodsList[1]['image']),
+              )
+            ),
+            InkWell(
+              onTap:(){
+                print('点击了楼层商品');
+              },
+              child:Container(
+                width: ScreenUtil().setWidth(375),
+                child:  Image.network(floorGoodsList[2]['image']),
+              )
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget _otherGoods(BuildContext context,List floorGoodsList){
+     
+     floorGoodsList.removeRange(0,3);
+     
+     return Row(
+       children: <Widget>[
+         Container(
+           width: ScreenUtil().setWidth(375),
+           child: InkWell(
+             onTap:(){},
+             child: Image.network(floorGoodsList[0]['image']),
+           ) ,
+         ),
+         Container(
+           width: ScreenUtil().setWidth(375),
+           child: InkWell(
+             onTap:(){},
+             child: Image.network(floorGoodsList[1]['image']),
+           ) ,
+         ),
+       ],
+     );
+  }
+}
+
+//火爆专区标题
+class TitleContent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(10.0),
+      child: Text('火爆专区'),
+    );
+  }
+}
+
+//火爆专区的实际内容
+
+class BelowConten extends StatefulWidget {
+  _BelowContenState createState() => _BelowContenState();
+  List<Map> goodsList;
+}
+
+class _BelowContenState extends State<BelowConten> {
+
+  List<Map> goodsList;
+  Future<bool> getHomePageBelowConten() async{
+    try{
+      Response response;
+      Dio dio = new Dio();
+       dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
+       response= await dio.post(servicePath['homePageBelowConten']);
+       if(response.statusCode == 200){
+        
+         widget.goodsList=(json.decode( response.data));
+         print(widget.goodsList);
+
+         return true;
+       }else{
+         return false;
+        
+       }
+
+    }catch(e){
+      
+      return false;
+    }
+  }
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future:getHomePageBelowConten(),
+      builder: (context,snapshot){
+        if(snapshot.hasData){
+         
+          
+          // return Text('${data}');
+          return Container(
+            child: LoadMore(
+              isFinish: false,
+              onLoadMore: getHomePageBelowConten,
+              child:Text('$goodsList') ,
+            ),
+          );
+        }
+      },
+    );
+  }
+}
