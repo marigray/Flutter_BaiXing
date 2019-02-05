@@ -5,7 +5,7 @@ import 'package:baixing/config/service.dart';
 import 'dart:async';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:loadmore/loadmore.dart';
+import "package:pull_to_refresh/pull_to_refresh.dart";
 
 
 import 'dart:convert';
@@ -403,52 +403,62 @@ class TitleContent extends StatelessWidget {
 
 class BelowConten extends StatefulWidget {
   _BelowContenState createState() => _BelowContenState();
-  List<Map> goodsList;
+    List goodsList; //商品列表
 }
 
 class _BelowContenState extends State<BelowConten> {
 
-  List<Map> goodsList;
-  Future<bool> getHomePageBelowConten() async{
+
+  void _test(bool up){
+    setState(() {
+       print('test');
+    });
+   
+  }
+ 
+  void _getHomePageBelowConten() async{
     try{
       Response response;
       Dio dio = new Dio();
+       var dataPara={'page':1};
        dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
-       response= await dio.post(servicePath['homePageBelowConten']);
+       response= await dio.post(servicePath['homePageBelowConten'],data:dataPara);
        if(response.statusCode == 200){
-        
-         widget.goodsList=(json.decode( response.data));
-         print(widget.goodsList);
-
-         return true;
+         print(response.data);
+         setState(){
+           widget.goodsList=json.decode(response.data);
+         }
+         
        }else{
-         return false;
-        
+         throw Exception('Falid to load post');
        }
 
     }catch(e){
-      
-      return false;
+      throw Exception('Falid to load post ${e}');
     }
   }
+
+  @override
+  void initState() {
+   _getHomePageBelowConten();
+    super.initState();
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future:getHomePageBelowConten(),
-      builder: (context,snapshot){
-        if(snapshot.hasData){
-         
-          
-          // return Text('${data}');
-          return Container(
-            child: LoadMore(
-              isFinish: false,
-              onLoadMore: getHomePageBelowConten,
-              child:Text('$goodsList') ,
-            ),
-          );
-        }
-      },
+    return SmartRefresher(
+        enablePullDown: true,
+        enablePullUp: false,
+        onRefresh: _test(up:true),
+        child: new ListView.builder(
+          itemExtent: 40.0,
+          itemCount: 10,
+          itemBuilder: (context,index){
+            return Text('111');
+          },
+     )
+
     );
   }
 }
