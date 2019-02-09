@@ -18,7 +18,7 @@ dependencies:
   dio: ^1.0.14
   flutter_swiper : ^1.1.4
   flutter_screenutil: ^0.4.5
-  loadmore: ^1.0.2
+  loadmore: ^1.0.2 
   pull_to_refresh: ^1.1.6
 
   # The following adds the Cupertino Icons font to your application.

@@ -77,8 +77,11 @@ class _MainContextState extends State<MainContext> {
       builder:(context,snapshot){
         if(snapshot.hasData){
           var data=json.decode(snapshot.data);
+           print(data);
          // List swiperDataList = data['data']['slides']; //顶部图片切换效果
           List<Map> swiperDataList = (data['data']['slides'] as List).cast(); // 顶部滑动的切换数据
+         
+
           List<Map> navigatorList = (data['data']['category'] as List).cast(); //类别分类,包括所有的分类
           String advertePicture = data['data']['advertesPicture']['PICTURE_ADDRESS']; //广告图片
           String leaderImage = data['data']['shopInfo']['leaderImage'];//店长图片
@@ -108,7 +111,7 @@ class _MainContextState extends State<MainContext> {
             FloorTitle(picture_address:floor3Title),
             FloorContent(floorGoodsList:floor3), 
             TitleContent(),
-            BelowConten(),
+          
           ],);
         }else{
            return Center(
@@ -401,64 +404,58 @@ class TitleContent extends StatelessWidget {
 
 //火爆专区的实际内容
 
-class BelowConten extends StatefulWidget {
-  _BelowContenState createState() => _BelowContenState();
-    List goodsList; //商品列表
-}
+// class BelowConten extends StatefulWidget {
+//   _BelowContenState createState() => _BelowContenState();
+//     List goodsList; //商品列表
+// }
 
-class _BelowContenState extends State<BelowConten> {
+// class _BelowContenState extends State<BelowConten> {
 
 
-  void _test(bool up){
-    setState(() {
-       print('test');
-    });
-   
-  }
  
-  void _getHomePageBelowConten() async{
-    try{
-      Response response;
-      Dio dio = new Dio();
-       var dataPara={'page':1};
-       dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
-       response= await dio.post(servicePath['homePageBelowConten'],data:dataPara);
-       if(response.statusCode == 200){
-         print(response.data);
-         setState(){
-           widget.goodsList=json.decode(response.data);
-         }
+//   void _getHomePageBelowConten() async{
+//     try{
+//       Response response;
+//       Dio dio = new Dio();
+//        var dataPara={'page':1};
+//        dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
+//        response= await dio.post(servicePath['homePageBelowConten'],data:dataPara);
+//        if(response.statusCode == 200){
+//          print(response.data);
+//          setState(){
+//            widget.goodsList=json.decode(response.data);
+//          }
          
-       }else{
-         throw Exception('Falid to load post');
-       }
+//        }else{
+//          throw Exception('Falid to load post');
+//        }
 
-    }catch(e){
-      throw Exception('Falid to load post ${e}');
-    }
-  }
+//     }catch(e){
+//       throw Exception('Falid to load post ${e}');
+//     }
+//   }
 
-  @override
-  void initState() {
-   _getHomePageBelowConten();
-    super.initState();
-  }
+//   @override
+//   void initState() {
+//    _getHomePageBelowConten();
+//     super.initState();
+//   }
 
 
-  @override
-  Widget build(BuildContext context) {
-    return SmartRefresher(
-        enablePullDown: true,
-        enablePullUp: false,
-        onRefresh: _test(up:true),
-        child: new ListView.builder(
-          itemExtent: 40.0,
-          itemCount: 10,
-          itemBuilder: (context,index){
-            return Text('111');
-          },
-     )
+//   @override
+//   Widget build(BuildContext context) {
+//     return SmartRefresher(
+//         enablePullDown: true,
+//         enablePullUp: false,
+//         onRefresh: _test(up:true),
+//         child: new ListView.builder(
+//           itemExtent: 40.0,
+//           itemCount: 10,
+//           itemBuilder: (context,index){
+//             return Text('111');
+//           },
+//      )
 
-    );
-  }
-}
+//     );
+//   }
+// }
