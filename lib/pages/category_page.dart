@@ -12,8 +12,7 @@ class CategoryPage extends StatefulWidget {
 }
 
 class _CategoryPageState extends State<CategoryPage> {
-
-  List categoryList;   //一级导航
+  List categoryList;  // 第一级导航
   List secondCategoryList;  //第二级导航
   int firstCategoryIndex =0 ; //一级导航的索引
   int secondCategoryIndex=0 ; //二级导航菜单
@@ -22,7 +21,7 @@ class _CategoryPageState extends State<CategoryPage> {
   int page=1;                 //现在商品的页数
   List goodList=[];              //商品的列表
   RefreshController _refreshController;
-
+  int isDioCount= 0;   
  
 
 
@@ -34,41 +33,42 @@ class _CategoryPageState extends State<CategoryPage> {
     
   }
 
-  _changeCategoryList(List tempList){
-    setState(() {
-      categoryList=tempList;
-    });
-  }
-
+  
   //获得列表数据的方法
 
-  Future _getCategory() async{
+  void _getCategory() async{
       
       try{
-        //if(categoryList.length<=0){
-            print('.............................................');
-            Response response;
-            Dio dio = new Dio();
-            dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
-            response = await dio.post(servicePath['getCategory']);
-            if(response.statusCode == 200){
-              //print( response.data);
-              var data=json.decode( response.data);
-              categoryList=(data['data'] as List).cast();
-              setState(() {
-               
-                categoryId=categoryList[0]['mallCategoryId'];
-                
-              });
-              if(secondCategoryList.length<=0){
-                  _getGoodsList();
-                  _changeSecondCategory(categoryList[0]['bxMallSubDto']);
-              }
-              return response.data;
-            }else{
-              throw Exception('Faild to laod post');
+       
+            if(isDioCount<1){
+                 print('.................................');
+                 Response response;
+                  Dio dio = new Dio();
+                  dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
+                  response = await dio.post(servicePath['getCategory']);
+                  if(response.statusCode == 200){
+                    print(response.data);
+                    var data = json.decode( response.data);
+                    
+                    setState(() {
+                      categoryList = (data['data'] as List).cast();
+                      isDioCount++;
+                      categoryId=categoryList[0]['mallCategoryId'];  
+                    });
+                    //得到二级分类列表
+                    if(secondCategoryList.length<=0){
+                        
+                        _changeSecondCategory(categoryList[0]['bxMallSubDto']);
+                        _getGoodsList();
+                    }
+
+                    
+                  }else{
+                    throw Exception('Faild to laod post');
+                  }
             }
-        //}
+           
+    
        
       }catch(e){
         return print(e);
@@ -79,20 +79,13 @@ class _CategoryPageState extends State<CategoryPage> {
   //左侧导航菜单的返回方法
   Widget _leftNavBar(BuildContext context){
 
-       return FutureBuilder(
-        future: _getCategory(),
-        builder: (context,snapshot){
-          if(snapshot.hasData){
-           
-            var data = json.decode(snapshot.data);
-            var tempList = (data['data'] as List).cast();
-           _changeCategoryList(tempList);
-           
-            //得到二级分类列表
-             
-            // _changeSecondCategory(categoryList[0]['bxMallSubDto']);
-            
-            return Container(
+
+       _getCategory();
+
+       if(categoryList.length<=0){
+        return Center(child: Text('加载中'),);
+       }else{
+         return Container(
               width:ScreenUtil().setWidth(180),
               height: ScreenUtil().setHeight(1794),
               decoration: BoxDecoration(
@@ -108,11 +101,8 @@ class _CategoryPageState extends State<CategoryPage> {
                 }
               )
             );
-          }else{
-            return Center(child: Text('加载中'),);
-          }
-        }
-      );
+       }
+      
 
   }
 

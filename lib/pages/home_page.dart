@@ -49,12 +49,27 @@ class _MainContextState extends State<MainContext> {
     try {
       Response response;
       Dio dio = new Dio();
+      print('000000000000000000000000000');
+      // const httpHeaders={
+      //   'Accept':'*/*',
+      //   'Accept-Encoding':'gzip, deflate, br',
+      //   'Cache-Control':'no-cache',
+      //   'Connection':'keep-alive',
+      //   'content-type':'application/x-www-form-urlencoded',
+      //   'Host':'wxmini.baixingliangfan.cn',
+      //   'Origin':'http://127.0.0.1:18585',
+      //   'Pragma':'no-cache',
+      //   'Referer':'https://servicewechat.com/wxb6ec0fa3b296a9f3/devtools/page-frame.html',
+      //   'User-Agent':'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1 wechatdevtools/1.02.1902010 MicroMessenger/6.7.3 Language/zh_CN webview/ token/06a04769a6ce6e8e7e29ca1f865b552e'
+      // };
      
       dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
-      var dataPara = {'lon':'35.776747','lat':'115.075116' };
-      response= await dio.post(servicePath['homePageContent'],
-      data:dataPara);
-       
+      //dio.options.headers=httpHeaders;
+      var formData = {'lon':'115.02932','lat':'35.76189'};
+      response= await dio.post(servicePath['homePageContent'],data:formData );
+    
+     
+      
      
        if(response.statusCode == 200){
          //print(json.decode(response.data));
