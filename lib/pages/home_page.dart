@@ -169,7 +169,7 @@ class TopNavigator extends StatelessWidget {
       padding: EdgeInsets.all(3.0),
       child: GridView.count(
         crossAxisCount:5,
-        padding:EdgeInsets.all(5.0),
+        padding:EdgeInsets.all(4.0),
         children: navigatorList.map((item){
           return _getGridViewItemUI(context,item);
         }).toList(),
