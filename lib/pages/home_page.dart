@@ -66,12 +66,13 @@ class _MainContextState extends State<MainContext> {
       dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
       //dio.options.headers=httpHeaders;
       var formData = {'lon':'115.02932','lat':'35.76189'};
-      response= await dio.post(servicePath['homePageContent'],data:formData );
+      response= await dio.get("https://www.easy-mock.com/mock/5c60131a4bed3a6342711498/baixing/homePageContent");
     
      
       
      
        if(response.statusCode == 200){
+          print('---------------->${json.decode(response.toString())}');
          //print(json.decode(response.data));
          return response.data;
        }else{
@@ -81,7 +82,7 @@ class _MainContextState extends State<MainContext> {
      
     }catch(e){
 
-        return print(e);    
+        return print('ERROR:=======>${e}');    
     }
   }
 
@@ -91,8 +92,8 @@ class _MainContextState extends State<MainContext> {
       future:getHomePageContent(),
       builder:(context,snapshot){
         if(snapshot.hasData){
-          var data=json.decode(snapshot.data);
-           print(data);
+          var data=json.decode(snapshot.data.toString());
+           print('llllllllllllllllll>>>>>>${data}');
          // List swiperDataList = data['data']['slides']; //顶部图片切换效果
           List<Map> swiperDataList = (data['data']['slides'] as List).cast(); // 顶部滑动的切换数据
          
