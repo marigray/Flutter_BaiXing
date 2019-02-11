@@ -108,68 +108,56 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   //得到商品列表数据的方法
-  Future _getGoodsList()async{
+  void _getGoodsList(){
     
       _refreshController.sendBack(true,RefreshStatus.idle);
     if(isLoad){
       try{
-        print('isLoad=${isLoad}');
-        isLoad=false;
-        Response response;
-        Dio dio = new Dio();
-        dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
-        var dataPara = {
-          'categoryId':categoryId,
-          'categorySubId':categorySubId,
-          'page':page
-        };
-        
-        response = await dio.post(servicePath['getMallGoods'],data:dataPara);
        
-        if(response.statusCode==200){
-          var data=json.decode( response.data);
-          List<Map> newGoodsList = (data['data'] as List).cast();
-          if(newGoodsList.length>0){
-            // print('已经获得数据，开始更新========================>page:${page}');
-           
-            setState(() {
-             
-              goodList.addAll(newGoodsList); 
-             
-            });
-              page++;
-            
-             Future.delayed(Duration(seconds: 2)).then((val){
-                    
-                    
-                        isLoad=true;
-                    
-              
-               
-              });
-          }else{
-            //没有新的数据了
-            
-            _refreshController.sendBack(false,RefreshStatus.noMore);
-            return print('已经到底了');
-          }
-        
-        }else{
+        setState(() {isLoad=false; });
           
-          _refreshController.sendBack(false,RefreshStatus.completed);
-          throw Exception('Falid to laod post');
-        }
-
+       Future(()async{
+          Response response;
+          Dio dio = new Dio();
+          dio.options.contentType=ContentType.parse("application/x-www-form-urlencoded");
+          var dataPara = {
+            'categoryId':categoryId,
+            'categorySubId':categorySubId,
+            'page':page
+          };
+          response = await dio.post(servicePath['getMallGoods'],data:dataPara);
+          print(response);
+          if(response.statusCode==200){
+            var data=json.decode( response.data);
+            if(data['data']!=null){
+              //判断是否还有数据
+              List<Map> newGoodsList = (data['data'] as List).cast();
+            
+              setState(() { goodList.addAll(newGoodsList);  });
+              page++;
+              _refreshController.sendBack(false,RefreshStatus.canRefresh);
+            }else{
+              //没有更多数据了，把样式进行设置
+              _refreshController.sendBack(false,RefreshStatus.noMore);
+            }
+            
+          }else{
+              
+            _refreshController.sendBack(false,RefreshStatus.completed);
+            throw Exception('Falid to laod post');
+          }
+       }).then((val){
+             setState(() { isLoad=true;});
+           
+       });
+        
       }catch(e){
         _refreshController.sendBack(false,RefreshStatus.completed);
-        return print(e);
+        return print('ERROR:==============>${e}');
       }
     }else{
       
-       Future.delayed(Duration(seconds: 2)).then((val){
-                        isLoad=true;
-
-              });
+       
         return print('没有加载......');
     }
 
@@ -190,6 +178,7 @@ class _CategoryPageState extends State<CategoryPage> {
               controller: _refreshController,
               onRefresh:_onRefresh,
               onOffsetChange: _onOffsetCallback,
+              enableOverScroll: isLoad,
               child: GridView.count(
                 crossAxisCount: 2,
                 mainAxisSpacing: 2.0,
@@ -257,11 +246,8 @@ class _CategoryPageState extends State<CategoryPage> {
   void _onOffsetCallback(bool isUp,double offset){
    
     if(isUp){
-        
+        _refreshController.sendBack(true,RefreshStatus.idle);
     }else{
-      
-      //  print('false上拉加载==>..............................${page}');
-      //  _refreshController.sendBack(true,RefreshStatus.idle);
        if(page>1){
               _getGoodsList();
        
@@ -275,9 +261,7 @@ class _CategoryPageState extends State<CategoryPage> {
 
   //下拉刷新
   void _onRefresh(bool up){
-  
-   
-   
+
   }
 
 
@@ -294,9 +278,9 @@ class _CategoryPageState extends State<CategoryPage> {
     return InkWell(
       onTap:(){
          isLoad= true;
-         _refreshController.sendBack(false,RefreshStatus.idle);
+             _refreshController.sendBack(false,RefreshStatus.idle);
          setState(() {  
-          
+           
             categoryId=categoryList[index]['mallCategoryId']; 
             categorySubId="";
             page=1;
@@ -329,6 +313,10 @@ class _CategoryPageState extends State<CategoryPage> {
         newList.insert(0, newMap);
         secondCategoryList=newList;
       });
+     }else{
+       setState(() {
+          secondCategoryList=newList;
+       });
      }
      
    }
@@ -370,10 +358,10 @@ class _CategoryPageState extends State<CategoryPage> {
 
       return InkWell(
         onTap: (){
-          isLoad= true;
+        
            _refreshController.sendBack(false,RefreshStatus.idle);
           setState(() {
-             
+               isLoad= true;
                secondCategoryIndex=index;
                categorySubId=secondCategoryList[index]['mallSubId'];
                page=1;
